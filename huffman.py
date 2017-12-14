@@ -82,10 +82,11 @@ def create_dictionary(hexdata) -> object:
             code[hex] += 1
         else:
             code[hex] = 1
+    with open('freq.csv', 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        for key, value in sorted( code.items(), key=operator.itemgetter( 1 ) ):
+            writer.writerow([key, value])
 
-    # sort this dictionary by (0 for key, 1 for values)
-    #for key, value in sorted( code.items(), key=operator.itemgetter( 1 ) ):
-        #print( key, value )
     return code
 
 
@@ -151,10 +152,6 @@ def hTreeToHCode(hTree) -> object:
         getCode( hNode.right, curCode + "1" )
 
     getCode( hTree )
-
-    w = csv.dictwriter( open( "output.csv", "w" ),fieldnames=(ke) )
-    for key, val in code.items():
-        w.writerow( [key, val] )
     return code
 
 
@@ -201,12 +198,19 @@ def compress(code) -> object:
 
 
 def decode():
-    with open ("output.csv",'r') as hana, open("compressed.bin",'rb') as dul :
-        muak=bytearray(dul.read(1))
+    with open ("freq.csv",'r') as hana, open("compressed.bin",'rb') as dul :
+        #muak=""
+        muak=bytearray(dul.read())
+        '''
+        
         gelato = dict(csv.DictReader(hana,fieldnames=("key","value")))
         for row in gelato:
             print(row['key'],row['value'])
         print(gelato)
+        '''
+        gelato=dict()
+        reader = csv.reader(hana)
+        gelato = dict(reader)
         hTree = buildHTree(gelato)
         decodedStr = ""
         curTreeNode = hTree
@@ -221,13 +225,13 @@ def decode():
     return decodedStr
 
 
-frequency =create_dictionary(start('test2.txt'))
+frequency =create_dictionary(start('test.txt'))
 print(frequency)
-string=start('test2.txt')
-print(string)
+string=start('test.txt')
+#print(string)
 code=encode(string,frequency)
 #hamada =create_dictionary( start() )
-print( code )
+#print( code )
 compress(code)
 print(decode())
 
