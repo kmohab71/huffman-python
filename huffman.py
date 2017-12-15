@@ -198,31 +198,44 @@ def compress(code) -> object:
 
 
 def decode():
-    with open ("freq.csv",'r') as hana, open("compressed.bin",'rb') as dul :
-        #muak=""
-        muak=bytearray(dul.read())
+    with open ("freq.csv",'r') as hana, open("compressed.bin",'rb') as dul, open("decompressed.txt",'w')as tictoc :
+        muak=""
+        #muak=bytearray(dul.read())
+
+        byte = dul.read(1)
+        while len(byte) !=0:
+            byte = ord(byte)
+            bits = bin(byte)[2:].rjust(8, '0')
+            muak += bits
+            byte = dul.read(1)
+
+        reader = csv.reader(hana)
+        gelato = dict(reader)
+        hTree = buildHTree(gelato)
         '''
         
         gelato = dict(csv.DictReader(hana,fieldnames=("key","value")))
         for row in gelato:
             print(row['key'],row['value'])
         print(gelato)
-        '''
-        gelato=dict()
-        reader = csv.reader(hana)
-        gelato = dict(reader)
-        hTree = buildHTree(gelato)
-        decodedStr = ""
+        
+        
+        
+        
+        while  len(muak) is not 0:
+            mask=chr(1<<muak)
+           '''
         curTreeNode = hTree
+        decodedStr = ""
         for charCode in muak:
             if (charCode == "0"):
                 curTreeNode = curTreeNode.left
             else:
                 curTreeNode = curTreeNode.right
             if (curTreeNode.isLeaf()):
-                decodedStr += curTreeNode.char
-                curTreeNode = hTree
-    return decodedStr
+                    decodedStr += curTreeNode.char
+                    curTreeNode = hTree
+        tictoc.write(decodedStr)
 
 
 frequency =create_dictionary(start('test.txt'))
@@ -233,7 +246,7 @@ code=encode(string,frequency)
 #hamada =create_dictionary( start() )
 #print( code )
 compress(code)
-print(decode())
+decode()
 
 """
 import heapq
